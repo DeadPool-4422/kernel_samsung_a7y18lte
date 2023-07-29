@@ -11,11 +11,18 @@ if ARCH_EXYNOS
 
 menu "SAMSUNG EXYNOS SoCs Support"
 
-config SKIP_HW_BREAKPOINT
-	bool "support skip hw breakpoint"
-	default n
-	help
-	  Support early param for T32 onchip breakpoint
+choice
+	prompt "Exynos device target"
+	default MACH_EXYNOS7885_NONE
+
+config MACH_EXYNOS7885_NONE
+	bool "None"
+
+config MACH_EXYNOS7885_A7Y18LTE_EUR_OPEN
+	bool "Galaxy A7 (SM-A750F)"
+	select EXYNOS_DTBTOOL
+
+endchoice
 
 menuconfig EXYNOS_DTBTOOL
 	bool "Build dtbtool for Exynos"
