@@ -1,0 +1,121 @@
+name: Build Kernel and Boot Image
+
+env:
+  GITHUB_TOKEN: ${{ secrets.KERNEL_UPLOAD_TOKEN }}
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: debian:buster-slim
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        apt-get update
+        apt-get install -y \
+            build-essential \
+            fakeroot \
+            libncurses5-dev \
+            libssl-dev \
+            ccache \
+            bison \
+            flex \
+            libelf-dev \
+            bc \
+            wget \
+            zip \
+            p7zip-full \
+            unzip
+
+    - name: Setup toolchain
+      run: |
+        mkdir ~/toolchain
+        wget -P ~/toolchain https://releases.linaro.org/components/toolchain/binaries/4.9-2017.01/aarch64-linux-gnu/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
+        tar -xvf ~/toolchain/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz -C ~/toolchain
+        rm ~/toolchain/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
+        echo "/root/toolchain/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu/bin" >> $GITHUB_PATH
+
+    - name: Build Kernel
+      run: |
+        chmod +x ./build_kernel.sh
+        ./build_kernel.sh
+
+    - name: Download and extract magiskboot
+      run: |
+        wget -O magisk.zip https://github.com/topjohnwu/Magisk/releases/download/v26.1/Magisk-v26.1.apk
+        unzip magisk.zip lib/x86_64/libmagiskboot.so -d magisk
+        mv magisk/lib/x86_64/libmagiskboot.so /usr/bin/magiskboot
+        chmod +x /usr/bin/magiskboot
+
+    - name: Download and extract stock boot image
+      run: |
+        mkdir repack
+        cd repack
+        wget https://raw.githubusercontent.com/DeadPool-4422/a7y18lte-Resources/main/stock-boot.7z
+        7z x stock-boot.7z
+        rm stock-boot.7z
+
+    - name: Unpack, replace kernel, and repack boot image
+      run: |
+        cd repack
+        magiskboot unpack boot.img
+        mv boot.img ../
+        rm kernel
+        cp ../arch/arm64/boot/Image ./kernel
+        magiskboot repack ../boot.img boot.img
+
+    - name: Zip boot folder
+      run: |
+        zip -r boot.zip ./arch/arm64/boot/
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.KERNEL_UPLOAD_TOKEN }}
+      with:
+        tag_name: ${{ github.run_id }}
+        release_name: Release ${{ github.run_id }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset - boot image
+      id: upload-release-asset-img
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.KERNEL_UPLOAD_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./repack/boot.img
+        asset_name: boot.img
+        asset_content_type: application/octet-stream
+
+    - name: Upload Release Asset - boot folder
+      id: upload-release-asset-zip
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.KERNEL_UPLOAD_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./boot.zip
+        asset_name: boot.zip
+        asset_content_type: application/zip
+
+    - name: Upload Release Asset - compiled kernel
+      id: upload-release-asset-kernel
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.KERNEL_UPLOAD_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./arch/arm64/boot/Image
+        asset_name: compiled_kernel
+        asset_content_type: application/octet-stream
