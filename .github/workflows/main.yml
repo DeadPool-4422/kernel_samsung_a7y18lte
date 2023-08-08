@@ -37,11 +37,10 @@ jobs:
 
     - name: Setup toolchain
       run: |
-        mkdir ~/toolchain
-        wget -P ~/toolchain https://releases.linaro.org/components/toolchain/binaries/4.9-2017.01/aarch64-linux-gnu/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
-        tar -xvf ~/toolchain/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz -C ~/toolchain
-        rm ~/toolchain/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
-        echo "/root/toolchain/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu/bin" >> $GITHUB_PATH
+        wget -P ~/ https://releases.linaro.org/components/toolchain/binaries/4.9-2017.01/aarch64-linux-gnu/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
+        tar -xvf ~/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz -C ~/toolchain
+        rm ~/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
+        echo "/root/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu/bin" >> $GITHUB_PATH
 
     - name: Build Kernel
       run: |
