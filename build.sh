@@ -30,9 +30,6 @@ ONEUI3=0
 GCC_ARM64_FILE=aarch64-linux-gnu-
 GCC_ARM32_FILE=arm-linux-gnueabi-
 
-# Export Telegram variables
-export CHAT_ID=-0000000000000
-export BOT_TOKEN=0
 
 # Export commands
 export KBUILD_BUILD_USER=Eureka
@@ -586,24 +583,6 @@ SELINUX() {
 		sleep 2
 	fi
 	sleep 1
-}
-
-TELEGRAM_UPLOAD() {
-	# Telegram functions.
-	function tg_sendText() {
-		curl -s "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
-		-d "parse_mode=html" \
-		-d text="${1}" \
-		-d chat_id=$CHAT_ID \
-		-d "disable_web_page_preview=true"
-	}
-	function tg_sendFile() {
-		curl -s "https://api.telegram.org/bot$BOT_TOKEN/sendDocument" \
-		-F parse_mode=markdown \
-		-F chat_id=$CHAT_ID \
-		-F document=@${1} \
-		-F "caption=$POST_CAPTION"
-	}
 
 	if [ "${BUILD_NO}" == "1" ]; then
 		for files in ./kernel_zip/aroma/*.zip; do
@@ -616,11 +595,9 @@ TELEGRAM_UPLOAD() {
 		POST_CAPTION="$CODENAME kernel R"$REV"$ANDROID_VAR"
 
 		echo " "
-		echo " ${ON_BLUE}Uploading to Telegram ${STD}"
 		echo " "
 
 		# Upload anykernel zip
-		tg_sendFile "kernel_zip/anykernel/$ZIPNAME" > /dev/null
 	fi
 }
 
@@ -682,7 +659,6 @@ BUILD_ALL() {
 		rm arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
 		mv arch/arm64/boot/dts/exynos/dtb/exynos7885.dts.bak arch/arm64/boot/dts/exynos/dtb/exynos7885.dts
 	fi
-	TELEGRAM_UPLOAD
 	DISPLAY_ELAPSED_TIME
 }
 
@@ -711,7 +687,6 @@ COMMON_STEPS() {
 	sleep 1
 	echo " "
 	if [ "${BUILD_NO}" == "" ]; then
-		TELEGRAM_UPLOAD
 		DISPLAY_ELAPSED_TIME
 		echo " ${BLUE}"
 		echo " ___________                     __            "
@@ -921,11 +896,6 @@ INDIVIDUAL() {
 
 
 ###################### Script starts here #######################
-
-if [ "${BOT_TOKEN}" == "0" ]; then
-	echo " ${RED}ERROR! Please configure Telegram vars properly."
-	exit
-fi
 
 if [ "$1" == "auto" ]; then
 	if [ "$2" == "hmp" ]; then
