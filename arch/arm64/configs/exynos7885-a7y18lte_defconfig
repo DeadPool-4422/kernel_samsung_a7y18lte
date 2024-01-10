@@ -520,7 +520,7 @@ CONFIG_CMDLINE=""
 # CONFIG_UH is not set
 # CONFIG_UH_RKP is not set
 # CONFIG_RKP_KDP is not set
-# CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE is not set
+CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE=y
 
 #
 # Userspace binary formats
