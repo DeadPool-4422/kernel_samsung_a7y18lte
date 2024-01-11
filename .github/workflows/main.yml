@@ -16,20 +16,13 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-
-    - name: Setup toolchain
-      run: |
-        wget -P ~/ https://releases.linaro.org/components/toolchain/binaries/4.9-2017.01/aarch64-linux-gnu/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
-        tar -xvf ~/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz -C ~/
-        rm ~/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
-        cp -r /root/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu/* ./toolchain/
-        echo "/root/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu/bin" >> $GITHUB_PATH
     
     - name: Install dependencies
       run: |
         apt-get update
         apt-get install -y \
             git \
+            wget \
             build-essential \
             fakeroot \
             libncurses5-dev \
@@ -43,6 +36,14 @@ jobs:
             zip \
             p7zip-full \
             unzip
+
+    - name: Setup toolchain
+      run: |
+        wget -P ~/ https://releases.linaro.org/components/toolchain/binaries/4.9-2017.01/aarch64-linux-gnu/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
+        tar -xvf ~/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz -C ~/
+        rm ~/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
+        cp -r /root/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu/* ./toolchain/
+        echo "/root/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu/bin" >> $GITHUB_PATH
 
     - name: Build Kernel
       run: |
