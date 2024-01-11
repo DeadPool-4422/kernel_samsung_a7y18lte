@@ -41,8 +41,8 @@ jobs:
       run: |
         wget -P ./ https://releases.linaro.org/components/toolchain/binaries/4.9-2017.01/aarch64-linux-gnu/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
         tar -xvf ./gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz -C ./
-        rm ~/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
-        cp -r ${pwd}/gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu/* ./toolchain/
+        rm ./gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu.tar.xz
+        cp -r ./gcc-linaro-4.9.4-2017.01-x86_64_aarch64-linux-gnu/* ./toolchain/
 
     - name: Build Kernel
       run: |
