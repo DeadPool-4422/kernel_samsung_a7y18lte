@@ -50,10 +50,9 @@ jobs:
 
     - name: Download and extract magiskboot
       run: |
-        wget -O magisk.zip https://github.com/topjohnwu/Magisk/releases/download/v26.1/Magisk-v26.1.apk
-        unzip magisk.zip lib/x86_64/libmagiskboot.so -d magisk
-        mv magisk/lib/x86_64/libmagiskboot.so /usr/bin/magiskboot
-        chmod +x /usr/bin/magiskboot
+        wget -O magiskboot.7z https://github.com/xiaoxindada/magiskboot_ndk_on_linux/releases/download/Magiskboot-27001-63/magiskboot.7z
+        7z x magiskboot.7z
+        cp ./out/x86_64/magiskboot /usr/bin/magiskboot
 
     - name: Download and extract stock boot image
       run: |
